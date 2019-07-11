@@ -72,6 +72,20 @@ class UserController {
     //             })
     //         })
     // }
+
+    static login(req, res) {
+        const {username, password, email} = req.body
+        User.findOne({username})
+            .then(user => {
+                if (!user) {
+                    res.status(404).json({
+                        message: 'invalid username / password'
+                    })
+                }else{
+                    
+                }
+            })
+    }
 }
 
 module.exports = UserController;
