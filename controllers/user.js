@@ -1,12 +1,14 @@
+'use strict'
 const User = require('../models/user')
 const {comparePassword} = require('../helpers/bcrypt')
 const {signToken} = require('../helpers/jwt')
 class UserController {
     static register(req, res) {
         const { username, password, email } = req.body
+        const newUser = { username, password, email }
         User.create(newUser)
             .then(newuser => {
-                res.status(201).json(newUser)
+                res.status(201).json(newuser)
             })
             .catch(err => {
                 res.status(500).json({
@@ -76,7 +78,7 @@ class UserController {
     // }
 
     static login(req, res) {
-        const {username, password, email} = req.body
+        let {username, password, email} = req.body
         User.findOne({username})
             .then(user => {
                 if (!user) {
@@ -85,20 +87,26 @@ class UserController {
                     })
                 }else{
                   if (comparePassword(password, user.password)) {
+                      console.log(comparePassword(password, user.password))
                       let payload = {
                           id: user.id
                       }
 
                       req.headers.token = signToken(payload)
+                      console.log(req.headers)
                       res.status(200).json({
                           message: 'signin success'
                       })
                   }else{
-                      req.status(400).json({
+                      res.status(400).json({
                           message: 'invalid username / password'
                       })
                   }
                 }
+            })
+            .catch(err => {
+                console.log(err)
+                res.status(500).json({err})
             })
     }
 }

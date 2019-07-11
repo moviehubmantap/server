@@ -4,17 +4,25 @@ const { hashPassword } = require('../helpers/bcrypt')
 const userSchema = new Schema({
     username: {
         type: String,
-        required: [true, 'what do we call you?'],
-        unique:[true, 'username must be unique.']
+        required: [true, 'username is required.'],
+        unique: true
     },
     password: {
         type: String,
-        required: [true, 'this field is required.'],
+        required: [true, 'password is required.'],
         minlength: [8, 'too short, min length is 8']
     },
     email: {
-        unique: [true, 'email must be unique.'],
-        required: [true, 'this field is required aswell.']
+        type: String,
+        unique: true,
+        required: [true, 'email is required aswell.'],
+        validate:{
+            validator:function(v){
+                const re = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i
+                return re.test(v)
+            },
+            message: props => `${props.value} is not a valid email!`
+        }
     }
 })
 

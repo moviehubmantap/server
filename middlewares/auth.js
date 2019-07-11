@@ -7,12 +7,8 @@ module.exports = {
         }else {
             try {
                 const decode = verifyToken(req.headers.token)
-                if (decode) {
-                    req.decode = decode
-                    next()
-                }else{
-                    throw new Error('authentication failure')
-                }
+                req.decode = decode
+                next()
             }catch(err) {
                 res.status(403).json({err})
             }
