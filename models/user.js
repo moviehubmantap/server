@@ -19,6 +19,12 @@ const userSchema = new Schema({
     }
 })
 
+userSchema.pre('save', function(next) {
+    let newPassword = bcrypt.hashSync(this.password, 10)
+    this.password = newPassword
+    next()
+})
+
 const User = mongoose.model('User', userSchema)
 
 module.exports = User
