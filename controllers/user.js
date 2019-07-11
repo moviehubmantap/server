@@ -1,4 +1,6 @@
 const User = require('../models/user')
+const {comparePassword} = require('../helpers/bcrypt')
+const {signToken} = require('../helpers/jwt')
 class UserController {
     static register(req, res) {
         const { username, password, email } = req.body
@@ -82,7 +84,20 @@ class UserController {
                         message: 'invalid username / password'
                     })
                 }else{
-                    
+                  if (comparePassword(password, user.password)) {
+                      let payload = {
+                          id: user.id
+                      }
+
+                      req.headers.token = signToken(payload)
+                      res.status(200).json({
+                          message: 'signin success'
+                      })
+                  }else{
+                      req.status(400).json({
+                          message: 'invalid username / password'
+                      })
+                  }
                 }
             })
     }
