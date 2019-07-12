@@ -1,14 +1,11 @@
+require('dotenv').config()
 const express = require('express');
 const app = express();
 const port = 3000;
 const cors = require('cors');
-const axios = require('axios')
-const tasteDiveAPI = 'https://tastedive.com/api/similar?type=movies&k=340179-movieHub-6N3RBPCP&limit=10&info=1&q='
-require('dotenv').config()
-
-app.use(express.urlencoded({extended: false}));
-app.use(express.json());
-app.use(cors());
+const morgan = require('morgan')
+const routes = require('./routes')
+const errorHandler = require('./helpers/errorHandler')
 
 const mongoose = require('mongoose');
 const url = 'mongodb://localhost:27017/moviehub'
@@ -21,18 +18,13 @@ mongoose.connect(url, {useNewUrlParser: true}, (err) => {
   }
 })
 
-app.get('/similiar/:title', (req, res) => {
-  axios({
-    method: 'GET',
-    url: `${tasteDiveAPI}${req.params.title}`
-  })
-  .then(({data}) => {
-    res.status(200).json(data)
-  })
-  .catch(err => {
-    console.log(err)
-  })
-})
+
+app.use(express.urlencoded({extended: false}));
+app.use(express.json());
+app.use(cors());
+app.use('/api', routes)
+app.use(errorHandler)
+
 
 
 
