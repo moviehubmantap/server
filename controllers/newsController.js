@@ -47,6 +47,15 @@ class NewsController {
         })
         .catch(next)
     }
+
+    static fetchMovie(req,res,next){
+        let url = `https://tastedive.com/api/similar?type=movie&k=${process.env.KEY_TASTEDIVE}&limit=10&info=1&q=`
+        ax.get(`${url}${req.params.title}`)
+        .then(({data})=>{
+            res.status(200).json(data)
+        })
+        .catch(next)
+    }
 }
 
 module.exports = NewsController
