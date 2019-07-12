@@ -1,4 +1,5 @@
 'use strict'
+const {OAuth2Client} = require('google-auth-library')
 const User = require('../models/user')
 const {comparePassword} = require('../helpers/bcrypt')
 const {signToken} = require('../helpers/jwt')
@@ -107,6 +108,43 @@ class UserController {
                 console.log(err)
                 res.status(500).json({err})
             })
+    }
+
+    static signinGoogle(req, res) {
+        const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
+        client.verifyIdToken({
+            idToken: req.body.id_token,
+            audience: process.env.GOOGLE_CLIENT_ID
+        })
+        .then(ticket => {
+            const {name, email} = ticket.getPayload()
+            let payload = {name, email}
+            const token = signToken(payload)
+            let password = name+ 'moviesHub'
+            return Promise.all([User.findOne({email}), token, password, payload])
+        })
+        .then(([user, token, password, payload]) => {
+            if (user) {
+                res.status(200).json({token})
+            }else {
+                let newUser = {
+                    username: payload.name,
+                    email: payload.email,
+                    password: password
+                }
+                return Promise.all([User.create(newUser), token])
+            }
+        })
+        .then(([user, token]) => {
+            res.status(200).json({token})
+        })
+        .catch(err => {
+            res.status(500).json({
+                messsage: 'internal server error',
+                source: 'User controller',
+                detail: err
+            })
+        })
     }
 }
 
