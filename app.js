@@ -4,12 +4,14 @@ const routes = require('./routes');
 const port = 3000;
 const cors = require('cors');
 const morgan = require('morgan')
+const errorHandler = require('./helpers/errorHandler')
 require('dotenv').config()
 
 app.use(express.urlencoded({extended: false}));
 app.use(express.json());
 app.use(morgan())
 app.use(cors());
+app.use(errorHandler)
 app.use('/api', routes)
 
 const mongoose = require('mongoose');
