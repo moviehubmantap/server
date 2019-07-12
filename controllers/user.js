@@ -111,7 +111,6 @@ class UserController {
     }
 
     static signinGoogle(req, res) {
-        console.log('masuk ke controller')
         const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
         client.verifyIdToken({
             idToken: req.body.id_token,
@@ -125,7 +124,6 @@ class UserController {
             return Promise.all([User.findOne({email}), token, password, payload])
         })
         .then(([user, token, password, payload]) => {
-            console.log(user)
             if (user) {
                 res.status(200).json({token})
             }else {
@@ -141,7 +139,6 @@ class UserController {
             res.status(200).json({token})
         })
         .catch(err => {
-            console.log(err)
             res.status(500).json({
                 messsage: 'internal server error',
                 source: 'User controller',
