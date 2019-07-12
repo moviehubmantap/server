@@ -5,13 +5,16 @@ const {comparePassword} = require('../helpers/bcrypt')
 const {signToken} = require('../helpers/jwt')
 class UserController {
     static register(req, res) {
-        let { username, password, email } = req.body
-        let newUser = { username, password, email }
+        const { username, password, email } = req.body
+        const newUser = { username, password, email }
+        console.log(newUser)
         User.create(newUser)
             .then(newuser => {
+                console.log(newuser, 'masuk create')
                 res.status(201).json(newuser)
             })
             .catch(err => {
+                console.log(err)
                 res.status(500).json({
                     message: 'internal server error',
                     source: 'User Controller',
@@ -80,7 +83,7 @@ class UserController {
 
     static login(req, res) {
         let {username, password, email} = req.body
-        User.findOne({username})
+        User.findOne({email})
             .then(user => {
                 if (!user) {
                     res.status(404).json({
@@ -88,15 +91,12 @@ class UserController {
                     })
                 }else{
                   if (comparePassword(password, user.password)) {
-                      console.log(comparePassword(password, user.password))
                       let payload = {
-                          id: user.id
+                          id: user.id,
+                          username: user.username
                       }
-
-                      req.headers.token = signToken(payload)
-                      res.status(200).json({
-                          message: 'signin success'
-                      })
+                      const token = signToken(payload)
+                      res.status(200).json({token, payload})
                   }else{
                       res.status(400).json({
                           message: 'invalid username / password'
