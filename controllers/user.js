@@ -111,6 +111,7 @@ class UserController {
     }
 
     static signinGoogle(req, res) {
+        let payload
         const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
         client.verifyIdToken({
             idToken: req.body.id_token,
@@ -118,14 +119,17 @@ class UserController {
         })
         .then(ticket => {
             const {name, email} = ticket.getPayload()
-            let payload = {name, email}
             const token = signToken(payload)
             let password = name+ 'moviesHub'
             return Promise.all([User.findOne({email}), token, password, payload])
         })
         .then(([user, token, password, payload]) => {
             if (user) {
-                res.status(200).json({token})
+                payload = {
+                    username: user.username,
+                    email: user.email
+                }
+                res.status(200).json({token, payload})
             }else {
                 let newUser = {
                     username: payload.name,
@@ -136,7 +140,11 @@ class UserController {
             }
         })
         .then(([user, token]) => {
-            res.status(200).json({token})
+            payload = {
+                username: user.username,
+                email: user.email
+            }
+            res.status(200).json({token, payload})
         })
         .catch(err => {
             res.status(500).json({
